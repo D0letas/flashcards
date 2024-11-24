@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <!-- Define o tipo da página e que estamos usando HTML -->
     <meta charset="UTF-8"> <!-- Define o conjunto de caracteres para permitir acentuação -->
@@ -35,6 +35,8 @@
             background-color: #45a049; /* Altera a cor quando o mouse passa por cima do botão */
         }
     </style>
+    <!-- Adiciona o link para a biblioteca PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 <body>
     <!-- Caixa onde as palavras e traduções aparecerão -->
@@ -46,33 +48,46 @@
 
     <script>
         // Criação de um conjunto de flashcards com palavras e traduções
-        let flashcards = [
-            { word: "hello", translation: "olá" }, 
-            { word: "apple", translation: "maçã" }, 
-            { word: "book", translation: "livro" },
-            { word: "cat", translation: "gato" }
-        ];
+        let flashcards = []; // Lista de flashcards
+        let currentIndex = 0; // Índice atual
 
-        // Variável para controlar qual flashcard está sendo exibido
-        let currentIndex = 0;
+        window.onload = function() {
+            // Carrega o arquivo CSV quando a página for carregada
+            Papa.parse("flashcards.csv", {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    if (results.data.length > 0) { // Verifica se há dados no CSV
+                        flashcards = results.data;
+                        showFlashcard(currentIndex); // Exibe o primeiro flashcard
+                    } else {
+                        alert("Nenhum dado encontrado no arquivo CSV!");
+                    }
+                },
+                error: function(err) { // Lida com erros de carregamento do CSV
+                    alert("Erro ao carregar o arquivo CSV. Verifique o caminho ou o conteúdo do arquivo.");
+                    console.error("Erro ao carregar o CSV:", err);
+                }
+            });
+        };
+
 
         // Função que mostra a palavra e a tradução do flashcard no lugar correto
         function showFlashcard(index) {
-            document.getElementById("word").textContent = flashcards[index].word; // Mostra a palavra
-            document.getElementById("translation").textContent = flashcards[index].translation; // Mostra a tradução
+            if (flashcards.length > 0) {
+                document.getElementById("word").textContent = flashcards[index].word; // Mostra a palavra
+                document.getElementById("translation").textContent = flashcards[index].translation; // Mostra a tradução
+            }
         }
-
         // Função que vai para o próximo flashcard
         function nextFlashcard() {
-            // Incrementa o índice e faz ele voltar para 0 quando chegar no final
-            currentIndex = (currentIndex + 1) % flashcards.length;
-            showFlashcard(currentIndex); // Mostra o próximo flashcard
+            if (flashcards.length > 0) {
+                // Incrementa o índice e faz ele voltar para 0 quando chegar no final
+                currentIndex = (currentIndex + 1) % flashcards.length;
+                showFlashcard(currentIndex); // Mostra o próximo flashcard
+            }
         }
 
-        // Quando a página carrega, exibe o primeiro flashcard
-        window.onload = function() {
-            showFlashcard(currentIndex); // Exibe o flashcard inicial
-        };
     </script>
 </body>
 </html>
